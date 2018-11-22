@@ -1,0 +1,16 @@
+public static Hashtable<String,Integer> searchWord(<>String text, String word, boolean ignorCase) {
+        countWords = new Hashtable<String,Integer>();
+        String[] wordsFromTheText = transformationInMassiv(text);
+        String[] wordsFromTheWord = transformationInMassiv(word);
+        int count;
+        for (String d : wordsFromTheWord) {
+            count=0;
+            for (String f : wordsFromTheText) {
+                if (((d.compareToIgnoreCase(f))==0)&&(ignorCase==true))
+                    count++;
+                else { if((d.compareTo(f))==0) count++; }
+            }
+            countWords.put(d,count);
+        }
+        return countWords;
+    }
