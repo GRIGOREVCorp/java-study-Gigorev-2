@@ -1,28 +1,30 @@
 package neoflexprojecttask2;
 
 import java.io.*;
-import java.text.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Level;
+import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 
 public class NeoFlexprojectTask2 {
-    private static final Logger logger = Logger.getLogger(NeoFlexprojectTask2.class);
+    private static final Logger LOGGER = Logger.getLogger(NeoFlexprojectTask2.class);
 
     static Hashtable<String,Integer> countWords;
 
     public static void main(String[] args) {
         try {        
             writeFile(searchWord("String private public", true));
-        } catch (FileNotFoundException ex1) { logger.info(ex1); }
-          catch (IOException ex2) { logger.warn(ex2); }
-          catch (Exception ex3) { logger.error(ex3); }
+        } catch (FileNotFoundException ex1) { LOGGER.info(ex1); }
+          catch (IOException ex2) { LOGGER.warn(ex2); }
+          catch (Exception ex3) { LOGGER.error(ex3); }
     }
     
-    public static Hashtable<String,Integer> searchWord(String word, boolean ignorCase) {
+    private static Hashtable<String,Integer> searchWord(String word, boolean ignorCase) {
         countWords = new Hashtable<String,Integer>();
         try {
-            String[] wordsFromTheText = transformationInMassiv(readFile());        
+            /*String[] wordsFromTheText = transformationInMassiv(readFile());        
             String[] wordsFromTheWord = transformationInMassiv(word);
             int count;
             for (String d : wordsFromTheWord) {
@@ -34,38 +36,47 @@ public class NeoFlexprojectTask2 {
                             count++;
                 }
                 countWords.put(d,count);
+            }*/
+            List<String> text = readingFileInCollection();
+            String[] wordsFromTheWord = transformationInMassiv(word);
+            int count;
+            for (String d : wordsFromTheWord) {
+                count=0;
+                for (String f : text) {
+                    if (((d.compareToIgnoreCase(f))==0)&&(ignorCase==true))
+                        count++;
+                    else if((d.compareTo(f))==0) 
+                            count++;
+                }
+                countWords.put(d,count);
             }
             return countWords;
-        } catch (FileNotFoundException ex1) { logger.info(ex1); }
-          catch (IOException ex2) { logger.warn(ex2); }
-          catch (Exception ex3) { logger.error(ex3); }
+        } catch (FileNotFoundException ex1) { LOGGER.info(ex1); }
+          catch (IOException ex2) { LOGGER.warn(ex2); }
+          catch (Exception ex3) { LOGGER.error(ex3); }
         return null;
     }
     
-    public static String[] transformationInMassiv(String text) {
-        text = text.replaceAll(" ", "_");
-        text = text.replaceAll("\\W", "_");
-        while (true) {            
-            if (text.indexOf("__")!=-1) {
-                text = text.replaceAll("__", "_");
-                continue;
-            } break;
-        }
-        return text.split("_");
+    private static String[] transformationInMassiv(String text) {
+        return text.replaceAll("[^A-Za-z]", " ").split(" ");
     }
     
-    public static String readFile() throws FileNotFoundException, IOException, Exception{        
-        try(InputStream f1 = new FileInputStream("input.txt");
-            BufferedInputStream bis = new BufferedInputStream(f1)) {
-            byte b[] = new byte[f1.available()];
-            f1.read(b);
-            bis.close();
-            f1.close();
+    /*private static String readFile() throws Exception{        
+        try(InputStream input = new FileInputStream("input.txt")) {
+            byte b[] = new byte[input.available()];
+            input.read(b);
             return new String(b, "utf8");
         }
+    }*/
+    
+    private static List<String> readingFileInCollection() throws IOException {
+        List<String> text = Files.lines(Paths.get("input.txt"))
+            .map(line -> line.replaceAll("[^A-Za-z]", " ").split(" ")).flatMap(Arrays::stream)
+            .collect(Collectors.toList());
+        return text;
     }
     
-    public static void writeFile(Hashtable<String,Integer> result) throws FileNotFoundException, IOException, Exception{
+    private static void writeFile(Hashtable<String,Integer> result) throws Exception{
         Date dateNow = new Date();
         SimpleDateFormat formatForDateNow = new SimpleDateFormat("hh.mm.ss");
         String nameFile = "ouput_" + formatForDateNow.format(dateNow) +  ".txt";
